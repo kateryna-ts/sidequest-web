@@ -91,7 +91,7 @@ export function DotMatrixBg({
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material)
     scene.add(mesh)
 
-    const clock = new THREE.Clock()
+    const clock = new THREE.Timer()
     let animId: number
 
     function resize() {
@@ -103,7 +103,7 @@ export function DotMatrixBg({
 
     function animate() {
       animId = requestAnimationFrame(animate)
-      material.uniforms.u_time.value = clock.getElapsedTime()
+      material.uniforms.u_time.value = clock.getElapsed()
       renderer.render(scene, camera)
     }
 
@@ -114,8 +114,9 @@ export function DotMatrixBg({
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener("resize", resize)
-      renderer.dispose()
+      mesh.geometry.dispose()
       material.dispose()
+      renderer.dispose()
       const el = renderer.domElement
       if (el.parentNode === container) container.removeChild(el)
     }
