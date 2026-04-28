@@ -112,7 +112,7 @@ export default function LandingPage() {
     <>
       {/* Fixed smoke — entire page background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <SmokeBackground smokeColor={BLUE} bgColor="#e8d2a8" />
+        <SmokeBackground smokeColor="#6366f1" bgColor="#0a0a0a" />
       </div>
 
       <CursorGlow />
