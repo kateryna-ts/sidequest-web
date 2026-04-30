@@ -148,8 +148,13 @@ export async function fetchWaves(userId: string): Promise<DbWave[]> {
   return (data ?? []) as DbWave[];
 }
 
-export async function sendWave(senderId: string, receiverId: string, questId: string) {
-  const { error } = await supabase.from('waves').insert({ sender_id: senderId, receiver_id: receiverId, quest_id: questId });
+export async function sendWave(senderId: string, receiverId: string, questId: string, icebreaker?: string) {
+  const { error } = await supabase.from('waves').insert({ sender_id: senderId, receiver_id: receiverId, quest_id: questId, icebreaker: icebreaker || null });
+  if (error) throw error;
+}
+
+export async function acceptWave(waveId: string) {
+  const { error } = await supabase.from('waves').update({ matched: true, seen: true }).eq('id', waveId);
   if (error) throw error;
 }
 

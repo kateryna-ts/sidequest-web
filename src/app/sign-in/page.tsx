@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { DotMatrixBg } from '@/components/ui/dot-matrix-bg'
+import { ShaderAnimation } from '@/components/ui/shader-animation'
 import { signInWithPassword, signInWithOtp, verifyOtp, ensureUserRecord } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 
@@ -127,10 +127,9 @@ export default function SignInPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-ink">
-      <DotMatrixBg dotSize={3} totalSize={20} />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(10,10,10,0.82)_0%,rgba(10,10,10,0.25)_100%)]" />
-      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink to-transparent" />
+      <ShaderAnimation speed={loading ? 15 : 1} />
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink to-transparent pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-sm px-6">
         <Link href="/" className="block text-center mb-10">

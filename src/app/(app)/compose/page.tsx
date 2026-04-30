@@ -7,25 +7,50 @@ import { getSession, signInAnonymously, ensureUserRecord, postQuest, QuestType }
 import { supabase } from '@/lib/supabase'
 import { Slider } from '@/components/ui/slider'
 
-// ─── Simplified quest types (17) ─────────────────────────────────────────────
-const QUEST_TYPES: { id: QuestType; label: string; emoji: string }[] = [
-  { id: 'coffee',        label: 'coffee',    emoji: '☕' },
-  { id: 'brunch',        label: 'brunch',    emoji: '🥞' },
-  { id: 'lunch',         label: 'lunch',     emoji: '🥗' },
-  { id: 'dinner',        label: 'dinner',    emoji: '🍽️' },
-  { id: 'farmers_market',label: 'market',    emoji: '🌿' },
-  { id: 'bookstore',     label: 'bookstore', emoji: '📚' },
-  { id: 'thrift',        label: 'thrift',    emoji: '🧥' },
-  { id: 'record_store',  label: 'records',   emoji: '🎵' },
-  { id: 'wine_shop',     label: 'wine shop', emoji: '🍷' },
-  { id: 'plant_nursery', label: 'plants',    emoji: '🌱' },
-  { id: 'gym',           label: 'gym',       emoji: '🏋️' },
-  { id: 'yoga',          label: 'yoga',      emoji: '🧘' },
-  { id: 'hike',          label: 'hike',      emoji: '🥾' },
-  { id: 'museum',        label: 'museum',    emoji: '🏛️' },
-  { id: 'cinema',        label: 'cinema',    emoji: '🎬' },
-  { id: 'trivia',        label: 'trivia',    emoji: '🎯' },
-  { id: 'other',         label: 'other',     emoji: '✦' },
+// ─── Grouped quest categories ─────────────────────────────────────────────
+const CATEGORIES: { name: string; items: { id: QuestType; label: string; emoji: string }[] }[] = [
+  {
+    name: 'Food & Drink',
+    items: [
+      { id: 'coffee',        label: 'coffee',    emoji: '☕' },
+      { id: 'brunch',        label: 'brunch',    emoji: '🥞' },
+      { id: 'lunch',         label: 'lunch',     emoji: '🥗' },
+      { id: 'dinner',        label: 'dinner',    emoji: '🍽️' },
+      { id: 'wine_shop',     label: 'wine shop', emoji: '🍷' },
+    ]
+  },
+  {
+    name: 'Shopping',
+    items: [
+      { id: 'farmers_market',label: 'market',    emoji: '🌿' },
+      { id: 'bookstore',     label: 'bookstore', emoji: '📚' },
+      { id: 'thrift',        label: 'thrift',    emoji: '🧥' },
+      { id: 'record_store',  label: 'records',   emoji: '🎵' },
+      { id: 'plant_nursery', label: 'plants',    emoji: '🌱' },
+    ]
+  },
+  {
+    name: 'Active',
+    items: [
+      { id: 'gym',           label: 'gym',       emoji: '🏋️' },
+      { id: 'yoga',          label: 'yoga',      emoji: '🧘' },
+      { id: 'hike',          label: 'hike',      emoji: '🥾' },
+    ]
+  },
+  {
+    name: 'Culture',
+    items: [
+      { id: 'museum',        label: 'museum',    emoji: '🏛️' },
+      { id: 'cinema',        label: 'cinema',    emoji: '🎬' },
+      { id: 'trivia',        label: 'trivia',    emoji: '🎯' },
+    ]
+  },
+  {
+    name: 'Misc',
+    items: [
+      { id: 'other',         label: 'other',     emoji: '✦' },
+    ]
+  }
 ]
 
 // ─── Time slots ───────────────────────────────────────────────────────────────
@@ -172,11 +197,11 @@ export default function ComposePage() {
   }
 
   return (
-    <div className="min-h-screen bg-ink">
-      <header className="sticky top-0 z-10 border-b border-parchment/10 bg-ink/90 backdrop-blur">
+    <div className="min-h-screen text-white">
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-black/20 backdrop-blur-md">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <button onClick={() => router.back()} className="text-sm text-parchment/40 transition hover:text-parchment">← back</button>
-          <span className="font-serif italic text-xl text-parchment">post a quest</span>
+          <button onClick={() => router.back()} className="text-sm text-white/50 transition hover:text-white">← back</button>
+          <span className="font-serif italic text-xl text-white">post a quest</span>
           <div className="w-16" />
         </div>
       </header>
@@ -186,18 +211,25 @@ export default function ComposePage() {
         {/* ── What ─────────────────────────────────────────────────────── */}
         <section>
           <p className={sectionLabel}>what are you doing?</p>
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-            {QUEST_TYPES.map(({ id, label, emoji }) => (
-              <button key={id} onClick={() => setSelectedType(id)}
-                className={cn(
-                  'flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-2 text-center transition-all',
-                  selectedType === id
-                    ? 'border-parchment/60 bg-parchment/10 text-parchment'
-                    : 'border-parchment/10 bg-parchment/3 text-parchment/50 hover:border-parchment/25 hover:text-parchment/80',
-                )}>
-                <span className="text-xl leading-none">{emoji}</span>
-                <span className="text-[10px] leading-tight">{label}</span>
-              </button>
+          <div className="flex flex-col gap-6">
+            {CATEGORIES.map(category => (
+              <div key={category.name}>
+                <p className="text-[10px] uppercase tracking-widest text-white/30 mb-3">{category.name}</p>
+                <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                  {category.items.map(({ id, label, emoji }) => (
+                    <button key={id} onClick={() => setSelectedType(id)}
+                      className={cn(
+                        'flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-2 text-center transition-all',
+                        selectedType === id
+                          ? 'border-white/60 bg-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.15)]'
+                          : 'border-white/10 bg-white/5 text-white/50 hover:border-white/30 hover:text-white/80',
+                      )}>
+                      <span className="text-xl leading-none">{emoji}</span>
+                      <span className="text-[10px] leading-tight">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
 

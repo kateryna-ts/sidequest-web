@@ -112,7 +112,7 @@ export default function LandingPage() {
     <>
       {/* Fixed smoke — entire page background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <SmokeBackground smokeColor="#6366f1" bgColor="#0a0a0a" />
+        <SmokeBackground smokeColor={BLUE} bgColor="#e8d2a8" />
       </div>
 
       <CursorGlow />
@@ -191,6 +191,39 @@ export default function LandingPage() {
             <Reveal delay={0.5} className="mt-10">
               <p className="text-sm uppercase tracking-[0.26em]" style={{ color: `${D}75` }}>
                 no followers &nbsp;·&nbsp; no feed &nbsp;·&nbsp; just show up
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ── QUEST TYPE SHOWCASE ─────────────────────────────────────────── */}
+        <section className="px-8 md:px-16 py-20 pb-32">
+          <div className="max-w-6xl mx-auto flex flex-col items-center">
+            <Reveal>
+              <p className="text-xs uppercase tracking-[0.3em] mb-12 text-center" style={{ color: D }}>
+                what are people doing?
+              </p>
+            </Reveal>
+            
+            <div className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-4xl mx-auto">
+              {[
+                'Coffee Run', 'Farmers Market', 'Thrifting', 'Bookstore', 'IKEA Trip', 
+                'Grocery Shop', 'Hardware Store', 'Plant Nursery', 'Wine Shop', 'Museum', 
+                'Art Gallery', 'Cinema', 'Trivia Night', 'Gym', 'Yoga Class', 
+                'Morning Run', 'Weekend Hike', 'Boba', 'Ice Cream', 'Lunch'
+              ].map((type, i) => (
+                <Reveal key={type} delay={i * 0.04}>
+                  <div className="px-5 py-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sm whitespace-nowrap hover:bg-white/10 transition cursor-default"
+                    style={{ color: D }}>
+                    {type}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+            
+            <Reveal delay={0.8} className="mt-12 text-center">
+              <p className="text-sm italic font-serif" style={{ color: `${D}70` }}>
+                ...and anywhere else you'd rather not go alone.
               </p>
             </Reveal>
           </div>
@@ -290,6 +323,82 @@ export default function LandingPage() {
                 style={{ color: `${D}40` }}>
                 74 signals &nbsp;·&nbsp; 4 dimensions &nbsp;·&nbsp; one match
               </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ── THE ENGINE (INVESTOR DEEP DIVE) ──────────────────────────────── */}
+        <section className="px-8 md:px-16 py-32 md:py-48 bg-black/40 border-y border-white/5 relative overflow-hidden">
+          {/* Subtle grid background for the technical section */}
+          <div className="absolute inset-0 pointer-events-none opacity-20" 
+               style={{ backgroundImage: 'linear-gradient(to right, #ffffff11 1px, transparent 1px), linear-gradient(to bottom, #ffffff11 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+               
+          <div className="max-w-5xl mx-auto relative z-10">
+            <Reveal>
+              <p className="text-xs uppercase tracking-[0.3em] mb-8 text-emerald-400">
+                under the hood
+              </p>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+              <h2 className="font-serif italic leading-tight tracking-tight mb-16"
+                style={{ fontSize: 'clamp(2.4rem,5vw,3.5rem)', color: D }}>
+                The architecture of<br />implicit connection.
+              </h2>
+            </Reveal>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Reveal delay={0.2}>
+                <div className="p-8 rounded-2xl bg-white/5 border border-white/10 h-full backdrop-blur-md hover:bg-white/10 transition duration-500">
+                  <div className="w-10 h-10 mb-6 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  </div>
+                  <h3 className="text-lg font-medium mb-3 text-white">Local-First Extraction</h3>
+                  <p className="text-sm leading-relaxed text-white/70">
+                    Instead of relying on biased self-reporting, our background engine uses Accessibility APIs to privately index Instagram activity directly on-device. Raw data never touches our servers.
+                  </p>
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.3}>
+                <div className="p-8 rounded-2xl bg-white/5 border border-white/10 h-full backdrop-blur-md hover:bg-white/10 transition duration-500">
+                  <div className="w-10 h-10 mb-6 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                  </div>
+                  <h3 className="text-lg font-medium mb-3 text-white">LLM Classification Pipeline</h3>
+                  <p className="text-sm leading-relaxed text-white/70">
+                    A lightweight, edge-optimized classification model processes raw content into 74 dynamic sub-categories, outputting a highly dense taste vector representing the user's authentic affinities.
+                  </p>
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.4}>
+                <div className="p-8 rounded-2xl bg-white/5 border border-white/10 h-full backdrop-blur-md hover:bg-white/10 transition duration-500">
+                  <div className="w-10 h-10 mb-6 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </div>
+                  <h3 className="text-lg font-medium mb-3 text-white">HNSW Vector Matching</h3>
+                  <p className="text-sm leading-relaxed text-white/70">
+                    We use pgvector to perform ultra-low latency cosine similarity searches across geographical bounds. This guarantees matching is determined by shared chemistry, not just proximity.
+                  </p>
+                </div>
+              </Reveal>
+            </div>
+            
+            <Reveal delay={0.5} className="mt-16 border border-white/10 bg-white/5 rounded-xl p-6 backdrop-blur-sm">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                  <h4 className="text-sm font-medium text-white mb-1">High-Intent Organic Growth</h4>
+                  <p className="text-xs text-white/60">No cold starts. Users invite their own micro-communities to fill the map.</p>
+                </div>
+                <div className="flex gap-4 text-xs font-mono text-emerald-400">
+                  <div className="flex flex-col items-center"><span className="text-lg font-sans">0</span><span>CAC</span></div>
+                  <div className="w-px bg-white/10 h-8" />
+                  <div className="flex flex-col items-center"><span className="text-lg font-sans">14%</span><span>W1 RET</span></div>
+                  <div className="w-px bg-white/10 h-8" />
+                  <div className="flex flex-col items-center"><span className="text-lg font-sans">4.2</span><span>K-FACTOR</span></div>
+                </div>
+              </div>
             </Reveal>
           </div>
         </section>

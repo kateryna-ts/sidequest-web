@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { DotMatrixBg } from '@/components/ui/dot-matrix-bg'
+import { ShaderAnimation } from '@/components/ui/shader-animation'
 import { signUpWithPassword, ensureUserRecord, getSession } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 
@@ -79,8 +79,8 @@ export default function SignUpPage() {
     e.preventDefault()
     if (!displayName.trim()) return
     const ageNum = parseInt(age)
-    if (age && (isNaN(ageNum) || ageNum < 18 || ageNum > 100)) {
-      setError('please enter a valid age (18–100).')
+    if (!age || isNaN(ageNum) || ageNum < 18 || ageNum > 100) {
+      setError('you must be 18 or older to use side quest.')
       return
     }
     setLoading(true)
@@ -88,7 +88,7 @@ export default function SignUpPage() {
     if (session) {
       await supabase.from('users').update({
         display_name: displayName.trim(),
-        ...(age ? { age: ageNum } : {}),
+        age: ageNum,
       }).eq('id', session.user.id)
     }
     setLoading(false)
@@ -161,7 +161,7 @@ export default function SignUpPage() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-ink">
 
-      <DotMatrixBg dotSize={3} totalSize={20} />
+      <ShaderAnimation speed={loading ? 15 : 1} />
 
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(10,10,10,0.82)_0%,rgba(10,10,10,0.25)_100%)]" />
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink to-transparent" />
@@ -276,9 +276,9 @@ export default function SignUpPage() {
                   value={displayName} onChange={e => setDisplayName(e.target.value)}
                   placeholder="your name or nickname"
                   maxLength={32} className={inputCls} />
-                <input type="number" min={18} max={100}
+                <input type="number" min={18} max={100} required
                   value={age} onChange={e => setAge(e.target.value)}
-                  placeholder="age (optional)"
+                  placeholder="age (18+)"
                   className={inputCls} />
                 {error && <p className="text-xs text-red-400 text-center">{error}</p>}
                 <button type="submit" disabled={!displayName.trim() || loading} className={primaryBtn}>

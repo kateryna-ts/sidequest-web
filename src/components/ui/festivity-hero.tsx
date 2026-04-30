@@ -5,6 +5,7 @@ import * as THREE from 'three'
 
 const FestivityHero = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
   const loadingCompleteRef = useRef(false)
 
   useEffect(() => {
@@ -63,6 +64,8 @@ const FestivityHero = () => {
       {x:6.4,y:0.4,z:1},{x:5.15,y:0.95,z:2},{x:6.2,y:0.5,z:-0.8},{x:4,y:0.08,z:1.8}
     ]
 
+    const WORDS = ['experience', 'live', 'love', 'laugh', 'meet', 'connect', 'vibe', 'explore', 'discover', 'share']
+
     const material = new THREE.MeshLambertMaterial({ color: '#0099ff', emissive: '#0066cc', transparent: true, opacity: 0.55 })
     const sharedGeo = new THREE.SphereGeometry(1, 24, 24)
     const group = new THREE.Group()
@@ -72,7 +75,11 @@ const FestivityHero = () => {
       const mesh = new THREE.Mesh(sharedGeo, material)
       mesh.scale.setScalar(radii[i])
       mesh.position.set(pos.x, -25, pos.z)
-      mesh.userData = { originalPosition: pos, radius: radii[i] }
+      mesh.userData = { 
+        originalPosition: pos, 
+        radius: radii[i],
+        word: WORDS[i % WORDS.length] 
+      }
       spheres.push(mesh)
       group.add(mesh)
     })
@@ -102,6 +109,8 @@ const FestivityHero = () => {
     const raycaster = new THREE.Raycaster()
     const mouse2 = new THREE.Vector2()
     const tmp = new THREE.Vector3()
+    const projTmp = new THREE.Vector3()
+    let hoveredSphere: THREE.Mesh | null = null
 
     const onMouseInteract = (e: MouseEvent) => {
       if (!loadingCompleteRef.current) return
@@ -114,6 +123,21 @@ const FestivityHero = () => {
         const f = new THREE.Vector3()
         f.subVectors(hits[0].point, s.position).normalize().multiplyScalar(0.2)
         forces.set(s.uuid, f)
+
+        if (hoveredSphere !== s) {
+          hoveredSphere = s
+          if (tooltipRef.current) {
+            tooltipRef.current.textContent = s.userData.word
+            tooltipRef.current.style.opacity = '1'
+            tooltipRef.current.style.transform = `scale(1.1) translate(-50%, -50%)`
+          }
+        }
+      } else {
+        hoveredSphere = null
+        if (tooltipRef.current) {
+          tooltipRef.current.style.opacity = '0'
+          tooltipRef.current.style.transform = `scale(0.95) translate(-50%, -50%)`
+        }
       }
     }
     window.addEventListener('mousemove', onMouseInteract)
@@ -178,6 +202,21 @@ const FestivityHero = () => {
           s.position.lerp(tmp, 0.018)
         })
         handleCollisions()
+
+        if (hoveredSphere && tooltipRef.current) {
+          projTmp.copy(hoveredSphere.position)
+          
+          // apply the group rotation to the world position
+          projTmp.applyMatrix4(group.matrixWorld)
+          
+          projTmp.project(camera)
+          const x = (projTmp.x * 0.5 + 0.5) * window.innerWidth
+          const y = (projTmp.y * -0.5 + 0.5) * window.innerHeight
+          
+          // Use absolute positioning left/top for performance
+          tooltipRef.current.style.left = `${x}px`
+          tooltipRef.current.style.top = `${y}px`
+        }
       }
       renderer.render(scene, camera)
     }
@@ -204,7 +243,21 @@ const FestivityHero = () => {
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+  return (
+    <>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <div 
+        ref={tooltipRef} 
+        className="pointer-events-none absolute text-white font-serif italic text-2xl md:text-3xl tracking-wide transition-all duration-300" 
+        style={{ 
+          opacity: 0, 
+          textShadow: '0 0 10px rgba(0,153,255,0.8), 0 0 20px rgba(0,153,255,0.6), 0 0 30px rgba(255,255,255,0.4)',
+          transform: 'translate(-50%, -50%)',
+          willChange: 'left, top, opacity, transform'
+        }} 
+      />
+    </>
+  )
 }
 
 export default FestivityHero

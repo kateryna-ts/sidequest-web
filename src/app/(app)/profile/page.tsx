@@ -3,13 +3,11 @@
 import { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AIInsightBlock } from '@/components/ui/ai-insight-block'
 import { supabase } from '@/lib/supabase'
 import { getSession, signInAnonymously, fetchCurrentUser, ensureUserRecord, DbUser } from '@/lib/api'
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
 
 const QUEST_LABELS: Record<string, string> = {
   grocery: 'grocery', farmers_market: 'farmers market', bookstore: 'bookstore',
@@ -40,6 +38,7 @@ function ProfileInner() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [quests, setQuests] = useState<{ id: string; quest_type: string; location_label: string | null; scheduled_time: string; status: string }[]>([])
+  const [hasFingerprint, setHasFingerprint] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -58,13 +57,12 @@ function ProfileInner() {
       // Open edit form automatically if name isn't set yet
       if (!name || name === 'you') setEditingProfile(true)
 
-      const { data } = await supabase
-        .from('quests')
-        .select('id, quest_type, location_label, scheduled_time, status')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(10)
-      setQuests(data ?? [])
+      const [{ data: questData }, { data: fp }] = await Promise.all([
+        supabase.from('quests').select('id, quest_type, location_label, scheduled_time, status').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(10),
+        supabase.from('taste_fingerprints').select('user_id').eq('user_id', session.user.id).maybeSingle(),
+      ])
+      setQuests(questData ?? [])
+      setHasFingerprint(!!fp)
       setLoading(false)
     })()
   }, [params])
@@ -107,9 +105,7 @@ function ProfileInner() {
       let session = await getSession()
       if (!session) session = await signInAnonymously()
       if (!session) return
-      const redirectTo = `${window.location.origin}/auth/callback`
-      const url = `${SUPABASE_URL}/functions/v1/instagram-oauth/authorize?apikey=${SUPABASE_ANON_KEY}&platform=web&redirect_to=${encodeURIComponent(redirectTo)}&token=${encodeURIComponent(session.access_token)}`
-      window.location.href = url
+      window.location.href = `/api/auth/instagram/start?token=${encodeURIComponent(session.access_token)}`
     } finally {
       setConnecting(false)
     }
@@ -141,8 +137,8 @@ function ProfileInner() {
   const initial = displayName?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <div className="min-h-screen bg-ink text-white">
-      <header className="sticky top-0 z-10 border-b border-white/8 bg-ink/80 backdrop-blur">
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-black/20 backdrop-blur-md">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
           <span className="font-serif italic text-xl text-white/70">you</span>
           {!editingProfile && (
@@ -252,23 +248,46 @@ function ProfileInner() {
             </AnimatePresence>
 
             {/* ── Status banners ──────────────────────────────────────── */}
+            {params.get('fingerprint') && (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+                taste fingerprint saved — your match scores are now live.
+              </div>
+            )}
             {params.get('connected') && (
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
-                instagram connected! your vibe profile is being built.
+                instagram connected!
               </div>
             )}
             {params.get('error') && (
               <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                could not connect instagram. try again from settings.
+                something went wrong. try again.
               </div>
             )}
 
             {/* ── Vibe ───────────────────────────────────────────────── */}
             <section className="flex flex-col gap-3">
-              <p className="text-xs uppercase tracking-widest text-white/30">your vibe</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-widest text-white/30">your vibe</p>
+                <Link href="/interests" className="text-xs text-white/40 hover:text-white/70 transition">
+                  {hasFingerprint ? 'update →' : 'build →'}
+                </Link>
+              </div>
               {blurb
                 ? <AIInsightBlock insight={blurb} />
-                : <AIInsightBlock insight="connect instagram to build your vibe profile — we read your posts and captions to figure out who you actually are." />}
+                : hasFingerprint
+                  ? <p className="text-xs text-white/40 italic font-serif leading-relaxed">taste fingerprint built — your match scores are live.</p>
+                  : (
+                    <div className="rounded-2xl border border-white/10 bg-white/4 px-5 py-4 flex flex-col gap-3">
+                      <p className="text-sm text-white/60 leading-relaxed">
+                        pick your interests to build your 74-point Taste Fingerprint — this is what powers your match score.
+                      </p>
+                      <Link href="/interests"
+                        className="w-full rounded-full bg-white py-2.5 text-sm font-medium text-black text-center hover:bg-white/85 transition">
+                        build my vibe
+                      </Link>
+                    </div>
+                  )
+              }
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-1">
                   {tags.map((t) => (
