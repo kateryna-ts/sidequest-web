@@ -36,9 +36,6 @@ export function ShaderAnimation({ speed = 1 }: { speed?: number }) {
 
     // Fragment shader
     const fragmentShader = `
-      #define TWO_PI 6.2831853072
-      #define PI 3.14159265359
-
       precision highp float;
       uniform vec2 resolution;
       uniform float time;
@@ -51,11 +48,12 @@ export function ShaderAnimation({ speed = 1 }: { speed?: number }) {
         vec3 color = vec3(0.0);
         for(int j = 0; j < 3; j++){
           for(int i=0; i < 5; i++){
-            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+            float denom = abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+            color[j] += lineWidth*float(i*i) / max(denom, 0.003);
           }
         }
-        
-        gl_FragColor = vec4(color[0],color[1],color[2],1.0);
+
+        gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
       }
     `
 
@@ -102,7 +100,7 @@ export function ShaderAnimation({ speed = 1 }: { speed?: number }) {
     window.addEventListener("resize", onWindowResize, false)
 
     // Animation loop & burst state
-    let burst = 20 // start with a burst on enter page
+    let burst = 3 // gentle entry animation
     
     const handleBurst = () => { burst = 20 }
     window.addEventListener('shader-burst', handleBurst)
@@ -115,7 +113,7 @@ export function ShaderAnimation({ speed = 1 }: { speed?: number }) {
       
       // Add any external speed prop plus the burst
       const currentSpeed = speedRef.current === 1 ? 0 : speedRef.current // override default 1 to 0
-      const totalSpeed = currentSpeed + burst
+      const totalSpeed = Math.min(currentSpeed + burst, 5)
       
       // Only increment time if there is speed, so it stops completely when idle
       if (totalSpeed > 0.01) {

@@ -127,7 +127,7 @@ export default function SignInPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-ink">
-      <ShaderAnimation speed={loading ? 15 : 1} />
+      <ShaderAnimation speed={loading ? 3 : 1} />
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink to-transparent pointer-events-none" />
 

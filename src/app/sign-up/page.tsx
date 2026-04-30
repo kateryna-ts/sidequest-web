@@ -161,7 +161,7 @@ export default function SignUpPage() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-ink">
 
-      <ShaderAnimation speed={loading ? 15 : 1} />
+      <ShaderAnimation speed={loading ? 3 : 1} />
 
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(10,10,10,0.82)_0%,rgba(10,10,10,0.25)_100%)]" />
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink to-transparent" />
