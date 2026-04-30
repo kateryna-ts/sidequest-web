@@ -25,6 +25,11 @@ export function ShaderAnimation({ speed = 1 }: { speed?: number }) {
   useEffect(() => {
     if (!containerRef.current) return
 
+    // Skip if WebGL unavailable (headless browsers, old devices)
+    const testCanvas = document.createElement('canvas')
+    const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl')
+    if (!gl) return
+
     const container = containerRef.current
 
     // Vertex shader
